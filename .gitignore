@@ -1,3 +1,2 @@
 *.o
-*.csv
-bench_pthread
+bench_spawnJoin

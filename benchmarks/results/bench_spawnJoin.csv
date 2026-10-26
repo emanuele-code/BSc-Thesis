@@ -1,0 +1,54 @@
+2026-10-25T15:48:54+01:00
+Running ./bench_spawnJoin
+Run on (4 X 3797.11 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x4)
+  L1 Instruction 32 KiB (x4)
+  L2 Unified 256 KiB (x4)
+  L3 Unified 6144 KiB (x1)
+Load Average: 10.78, 11.65, 7.18
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"BM_pthread_spawnJoinBatch/1/real_time_mean",30,26.9022,11.664,us,,37173.1,,,
+"BM_pthread_spawnJoinBatch/1/real_time_median",30,26.8958,11.6559,us,,37180.6,,,
+"BM_pthread_spawnJoinBatch/1/real_time_stddev",30,0.1697,0.0918831,us,,234.605,,,
+"BM_pthread_spawnJoinBatch/1/real_time_cv",30,0.00630804,0.00787748,,,0.00631114,,,
+"BM_pthread_spawnJoinBatch/2/real_time_mean",30,51.2976,22.1506,us,,38988.8,,,
+"BM_pthread_spawnJoinBatch/2/real_time_median",30,51.2898,22.1663,us,,38994.2,,,
+"BM_pthread_spawnJoinBatch/2/real_time_stddev",30,0.209636,0.111248,us,,159.173,,,
+"BM_pthread_spawnJoinBatch/2/real_time_cv",30,0.00408666,0.00502232,,,0.00408254,,,
+"BM_pthread_spawnJoinBatch/4/real_time_mean",30,98.7601,41.5651,us,,40503.2,,,
+"BM_pthread_spawnJoinBatch/4/real_time_median",30,98.8093,41.609,us,,40482,,,
+"BM_pthread_spawnJoinBatch/4/real_time_stddev",30,0.494892,0.220705,us,,203.192,,,
+"BM_pthread_spawnJoinBatch/4/real_time_cv",30,0.00501105,0.00530986,,,0.0050167,,,
+"BM_pthread_spawnJoinBatch/8/real_time_mean",30,268.373,139.353,us,,29810,,,
+"BM_pthread_spawnJoinBatch/8/real_time_median",30,268.304,139.224,us,,29816.9,,,
+"BM_pthread_spawnJoinBatch/8/real_time_stddev",30,1.39926,0.869502,us,,154.681,,,
+"BM_pthread_spawnJoinBatch/8/real_time_cv",30,0.00521384,0.00623955,,,0.00518891,,,
+"BM_pthread_spawnJoinBatch/16/real_time_mean",30,596.753,326.076,us,,26812.1,,,
+"BM_pthread_spawnJoinBatch/16/real_time_median",30,596.654,326.137,us,,26816.2,,,
+"BM_pthread_spawnJoinBatch/16/real_time_stddev",30,2.20711,1.27336,us,,99.0683,,,
+"BM_pthread_spawnJoinBatch/16/real_time_cv",30,0.00369853,0.0039051,,,0.00369491,,,
+"BM_pthread_spawnJoinBatch/32/real_time_mean",30,1249.49,692.498,us,,25610.6,,,
+"BM_pthread_spawnJoinBatch/32/real_time_median",30,1249.84,692.467,us,,25603.3,,,
+"BM_pthread_spawnJoinBatch/32/real_time_stddev",30,3.70625,1.76654,us,,75.8687,,,
+"BM_pthread_spawnJoinBatch/32/real_time_cv",30,0.0029662,0.00255097,,,0.0029624,,,
+"BM_pthread_spawnJoinBatch/64/real_time_mean",30,2575.58,1434.73,us,,24848.9,,,
+"BM_pthread_spawnJoinBatch/64/real_time_median",30,2574.21,1434.71,us,,24862,,,
+"BM_pthread_spawnJoinBatch/64/real_time_stddev",30,5.45743,4.11695,us,,52.5737,,,
+"BM_pthread_spawnJoinBatch/64/real_time_cv",30,0.00211891,0.00286949,,,0.00211574,,,
+"BM_pthread_spawnJoinBatch/128/real_time_mean",30,5281.4,2934.82,us,,24236.3,,,
+"BM_pthread_spawnJoinBatch/128/real_time_median",30,5283.94,2934.1,us,,24224.3,,,
+"BM_pthread_spawnJoinBatch/128/real_time_stddev",30,20.6506,14.2113,us,,94.8729,,,
+"BM_pthread_spawnJoinBatch/128/real_time_cv",30,0.00391006,0.00484232,,,0.00391449,,,
+"BM_pthread_spawnJoinBatch/256/real_time_mean",30,10770.8,6012.65,us,,23768,,,
+"BM_pthread_spawnJoinBatch/256/real_time_median",30,10769.5,6010.26,us,,23770.9,,,
+"BM_pthread_spawnJoinBatch/256/real_time_stddev",30,21.2598,15.2029,us,,46.901,,,
+"BM_pthread_spawnJoinBatch/256/real_time_cv",30,0.00197383,0.00252848,,,0.00197329,,,
+"BM_pthread_spawnJoinBatch/512/real_time_mean",30,21838.7,12424.8,us,,23444.7,,,
+"BM_pthread_spawnJoinBatch/512/real_time_median",30,21831.6,12415.9,us,,23452.2,,,
+"BM_pthread_spawnJoinBatch/512/real_time_stddev",30,48.1938,41.922,us,,51.7008,,,
+"BM_pthread_spawnJoinBatch/512/real_time_cv",30,0.00220681,0.00337406,,,0.00220522,,,
+"BM_pthread_spawnJoinBatch/1024/real_time_mean",30,43911.9,25171,us,,23319.5,,,
+"BM_pthread_spawnJoinBatch/1024/real_time_median",30,43903.8,25180.2,us,,23323.7,,,
+"BM_pthread_spawnJoinBatch/1024/real_time_stddev",30,88.7926,65.6015,us,,47.1072,,,
+"BM_pthread_spawnJoinBatch/1024/real_time_cv",30,0.00202206,0.00260624,,,0.00202008,,,
