@@ -10,7 +10,7 @@
 int main(void) {
     DP13::output();                      // LED pin as output (without evalueting this pin we will not get 5V when PORTB is evaluated)
         
-    tick_init();                         // configure Timer1 (1 ms tick)
+    tick_init();                         // configure Timer0 (1 ms tick)
     sei();                               // enable global interrupts
 
     uint32_t last = 0;                   // tick value at the last toggle

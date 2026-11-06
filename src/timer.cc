@@ -1,3 +1,22 @@
+/* timer.cc
+ *
+ * DESCRIPTION
+ *   Millisecond system tick for the ATmega328P (16 MHz), built on Timer0.
+ *
+ * WHAT IT DOES
+ *   - tick_init(): configures Timer0 in CTC mode with a 64 prescaler and
+ *     OCR0A = 249, so a compare-match interrupt fires every 1 ms.
+ *   - ISR(TIMER0_COMPA_vect): increments a 32-bit millisecond counter 'tick'.
+ *   - tick_now(): returns the counter as an atomic read, with interrupts
+ *     briefly disabled so the ISR can't change it mid-copy.
+ *
+ * NOTES
+ *   - tick_init() does not enable interrupts globally; call sei() in main afterwards.
+ */
+
+
+
+
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
@@ -9,11 +28,13 @@
 static volatile uint32_t tick = 0;
 
 
-/* ISR compare match A, fires every 1 ms
- * increments the global millisecond counter */
+
+/* ISR compare match A, fires every 1 ms: increments the global millisecond counter */
 ISR(TIMER0_COMPA_vect) {
     tick++;
 }
+
+
 
 /* Configure Timer0 to fire a compare match interrupt every 1 ms when TCNT0 matches OCR0A registers
  * Assumes that atmega328p has a clock frequency of 16MHz */
@@ -23,6 +44,8 @@ void tick_init() {
     TCCR0A |= (1 << WGM01);                               // WGM01: CTC mode (reset the counter on compare match)
     TCCR0B |= (1 << CS01) | (1 << CS00);                  // CS01 | CS00: enable prescaler 64
 }
+
+
 
 /* the AVR is an 8-bit MCU but the tick is 32 bit (split on 4 registers)
  * so it could be interrupted amid the reading process leading to a dirty read
