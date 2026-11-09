@@ -4,13 +4,14 @@
 .
 ├── cmake
 │   └── avr-gcc.cmake
-├── CMakeLists.txt
 ├── include
+│   ├── protothread.h
 │   ├── timer.h
 │   └── utilityPin.h
+├── src
+│   ├── main.cc
+│   └── timer.cc
+├── CMakeLists.txt
 ├── LICENSE
-├── README.md
-└── src
-    ├── main.cc
-    └── timer.cc
+└── README.md
 ```
