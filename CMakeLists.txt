@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 
 # give the project a name and specify with which languages I am working with
-project(thesis LANGUAGES CXX)
+project(thesis LANGUAGES CXX ASM)
 
 
 # Compile as C++17 and fail if it is not available
@@ -50,7 +50,7 @@ set_target_properties(main PROPERTIES SUFFIX ".elf")
 # VERBATIM: pass the args as I wrote them protecting from special characters
 add_custom_command(TARGET main POST_BUILD
     COMMAND avr-objcopy -O ihex -R .eeprom $<TARGET_FILE:main> $<TARGET_FILE_DIR:main>/main.hex
-    COMMAND avr-size -C --mcu=atmega328p $<TARGET_FILE:main>
+    COMMAND avr-size --format=avr --mcu=atmega328p $<TARGET_FILE:main>
     VERBATIM)
 
 
