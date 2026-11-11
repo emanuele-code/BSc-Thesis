@@ -20,7 +20,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "timer.h"
+#include "timer.hpp"
 
 
 /* Milliseconds since tick_init(). volatile: modified in the ISR.

@@ -1,9 +1,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#include "utilityPin.h"
-#include "timer.h"
-#include "protothread.h"
+#include "utilityPin.hpp"
+#include "timer.hpp"
+#include "protothread.hpp"
 
 
 
