@@ -16,6 +16,10 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# Generate build/compile_commands.json, used by editors
+# Not needed to build: I included it so that VS Code can find the right include paths
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # Set here and not in the toolChain becuase CMake appends its own "-O3 DNDEBUG"
 # Set here and not in the toolchain file because CMake's default Release value is
@@ -25,7 +29,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 
 
 # create and executable from main.cc and name it main
-add_executable(main src/main.cc src/timer.cc)
+add_executable(main src/main.cc src/timer.cc src/thread.cc src/context_switch.S)
 
 
 # add_executable create the target 'main' the instruction below append .elf (main -> main.elf)
