@@ -9,8 +9,6 @@ set(CMAKE_SYSTEM_PROCESSOR avr)
 set(CMAKE_CXX_COMPILER avr-g++)
 set(CMAKE_ASM_COMPILER avr-g++)
 
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY) 
-
 
 # Initial options for every C++ compilation:
 #  -mmcu=atmega328p      target chip (ATmega328P, the Arduino Uno MCU)

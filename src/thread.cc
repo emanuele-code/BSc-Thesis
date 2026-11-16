@@ -62,8 +62,8 @@ void init_stack(TCB *tcb, uint8_t *stack, size_t size, void (*entry)(void)) {
     uint16_t addr = (uint16_t)entry;
     *p--          = addr & 0xFF;
     *p--          = addr >> 8;
-    for(size_t i=0; i<18; i++) {
-        *p-- = 0;
-    } 
+
+    for(size_t i=0; i<18; i++) *p-- = 0;
+    
     tcb->sp = p;
 }

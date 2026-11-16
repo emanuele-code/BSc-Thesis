@@ -28,7 +28,7 @@
 
 
 
-constexpr uint8_t STACK_FILL      = 0xAA;  // stack painter value
+constexpr uint8_t  STACK_FILL     = 0xAA;  // stack painter value
 constexpr uint16_t MIN_STACK_SIZE = 64;    // bytes: initial frame (20) + room 
 
 
