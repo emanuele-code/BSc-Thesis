@@ -21,7 +21,6 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
-# Set here and not in the toolChain becuase CMake appends its own "-O3 DNDEBUG"
 # Set here and not in the toolchain file because CMake's default Release value is
 # "-O3 -DNDEBUG" and, if set in the toolchain, -O3 would come after -Os and win.
 # Setting the variable here replaces the whole default value (so -DNDEBUG is dropped too)
