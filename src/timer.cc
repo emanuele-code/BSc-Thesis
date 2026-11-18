@@ -39,7 +39,7 @@ ISR(TIMER0_COMPA_vect) {
 /* Configure Timer0 to fire a compare match interrupt every 1 ms when TCNT0 matches OCR0A registers
  * Assumes that atmega328p has a clock frequency of 16MHz */
 void tick_init() {
-    OCR0A   = 249;                                        // 16MHz/64 = 250kHz (4us tick); 1ms/4us - 1 = 249
+    OCR0A   = 249;                                        // 1/16MHz = 62.5ns*64 = 4us => 1000us/4us = 250-1
     TIMSK0 |= (1 << OCIE0A);                              // enable the output compare A match interrupt for Timer0
     TCCR0A |= (1 << WGM01);                               // WGM01: CTC mode (reset the counter on compare match)
     TCCR0B |= (1 << CS01) | (1 << CS00);                  // CS01 | CS00: enable prescaler 64
