@@ -46,8 +46,17 @@ void yield(TCB *next) {
    When fn returns it saves the result and never runs again. */
 void entry_point() {
     running_thread->retval = running_thread->fn(running_thread->args);
+    running_thread->done   = true;
 
     for(;;) yield(&tcb_main);
+}
+
+
+
+
+void thread_join(TCB* tcb, void **retval) {
+    while(tcb->done == false) yield(tcb);
+    *retval = tcb->retval;
 }
 
 

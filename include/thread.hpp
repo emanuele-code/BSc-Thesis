@@ -42,6 +42,8 @@ struct TCB {
     void    *args;               
     void    *retval;             
     void    *(*fn)(void*);       // function run by the thread
+
+    volatile uint8_t done;
 };
 
 
@@ -63,6 +65,7 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());  // prepare the stack of a new thread
 void yield(TCB *next);                                                      // give the CPU to "next" (will be modified)
 void entry_point();                                                         // first function run by every new thread
+void thread_join(TCB* tcb, void **retval);                                  // join the thread          
 
 
 
@@ -80,6 +83,7 @@ struct Thread {
         tcb.args   = args;
         tcb.fn     = fn;
         tcb.retval = nullptr;
+        tcb.done   = false;
 
         init_stack(&tcb, stack, N, entry_point);
     }
