@@ -17,13 +17,17 @@ Work in progress: a common scheduler for both kinds is still to be written.
 │   ├── protothread.hpp
 │   ├── thread.hpp
 │   ├── timer.hpp
+│   ├── scheduler.hpp
+│   ├── userSetup.hpp
 │   ├── utilityPin.hpp
 │   └── utilitySerial.hpp
 ├── src
 │   ├── context_switch.S
 │   ├── main.cc
 │   ├── thread.cc
-│   └── timer.cc
+│   ├── timer.cc
+│   ├── scheduler.cc
+│   └── userSetup.cc
 ├── docs
 │   ├── atemega328p.pdf
 │   └── stato_progetto.pdf
