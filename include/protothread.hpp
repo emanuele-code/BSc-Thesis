@@ -23,13 +23,20 @@
 
 
 
+
+
 #pragma once
 
 #include <stdint.h>
 
 
+
+
+
 /* local continuation: It tells where the protothread stopped */ 
 struct Protothread { uint16_t lc; };
+
+
 
 
 
@@ -41,17 +48,28 @@ struct Protothread { uint16_t lc; };
 
 
 
+
+
 /* init the local continuation: must be used right after the protothread creation */
 #define PT_INIT(pt) ( (pt)->lc = 0)
+
+
+
 
 
 /* Open the switch-case and is used to decide where to jump */
 #define PT_BEGIN(pt) switch((pt)->lc) { case 0:
 
 
+
+
+
 /* Saves the local continuation and leaves a case label 
  * so that the next call resumes right after this point. */
 #define LC_SET(pt) (pt)->lc = __LINE__; [[fallthrough]]; case __LINE__:
+
+
+
 
 
 /* Waits until the condition becomes true: while it is false, the function
@@ -65,6 +83,9 @@ struct Protothread { uint16_t lc; };
     } while(0)                
 
 
+
+
+
 /* Yield voluntarily: saves the resume point, returns PT_YIELDED and leaves a
  * case label so that the next call continues right after the yield. */
 #define PT_YIELD(pt)                                             \
@@ -73,8 +94,14 @@ struct Protothread { uint16_t lc; };
     } while(0)         
 
 
+
+
+
 /* Close the switch statment, restore the local continuation to 0 and return PT_ENDED */
 #define PT_END(pt) } PT_INIT(pt); return PT_ENDED
+
+
+
 
 
 /* Exit and restore the local continuation to 0 */

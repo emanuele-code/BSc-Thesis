@@ -127,6 +127,6 @@ context_switch:
         ; ---- 6) resume the TO thread ----
         ;      SP += 2 and PC = the 2 bytes on top of the stack (a flash address):
         ;      new thread:         the address of entry_point written by init_stack
-        ;      thread already run: the return address wrtten by the last call to yield(), saved when it was suspended
+        ;      thread already run: the return address written by the last call to thread_yield(), saved when it was suspended
 
         ret
