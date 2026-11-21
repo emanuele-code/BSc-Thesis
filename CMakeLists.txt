@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 
 
 # create and executable from main.cc and name it main
-add_executable(main src/main.cc src/timer.cc src/thread.cc src/scheduler.cc src/userSetup.cc src/context_switch.S)
+add_executable(main src/main.cc src/timer.cc src/thread.cc src/scheduler.cc src/context_switch.S)
 
 
 # add_executable create the target 'main' the instruction below append .elf (main -> main.elf)
