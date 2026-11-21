@@ -18,7 +18,6 @@ Work in progress: a common scheduler for both kinds is still to be written.
 │   ├── thread.hpp
 │   ├── timer.hpp
 │   ├── scheduler.hpp
-│   ├── userSetup.hpp
 │   ├── utilityPin.hpp
 │   └── utilitySerial.hpp
 ├── src
@@ -26,8 +25,7 @@ Work in progress: a common scheduler for both kinds is still to be written.
 │   ├── main.cc
 │   ├── thread.cc
 │   ├── timer.cc
-│   ├── scheduler.cc
-│   └── userSetup.cc
+│   └── scheduler.cc
 ├── docs
 │   ├── atemega328p.pdf
 │   └── stato_progetto.pdf
