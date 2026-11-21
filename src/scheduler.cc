@@ -24,12 +24,15 @@
 
 
 
+
+
 /* TCB of main: it is the first element of the list, and its "next" points to itself,
    so at the beginning the list is made only of main. Its sp is written at the first
    context switch. The fields are: sp, next, args, retval, fn, state */
 TCB  tcb_main        = {nullptr, &tcb_main, nullptr, nullptr, nullptr, READY};
 TCB  *running_thread = &tcb_main;                                                        
 static TCB *tail     = &tcb_main;                                                        
+
 
 
 
@@ -42,6 +45,7 @@ void thread_schedule(TCB *tcb) {
     tail->next = tcb;
     tail       = tcb;
 }
+
 
 
 
@@ -59,4 +63,12 @@ void thread_yield() {
 
     running_thread = next;
     context_switch(prev, next);                         
+}
+
+
+
+
+
+void thread_start() {
+    for(;;) thread_yield();     // idle: give the CPU to the other threads, forever
 }
