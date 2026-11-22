@@ -83,8 +83,10 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 
 
 void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());                      // prepare the stack of a new thread
-void thread_join(TCB* tcb, void **retval);                                                      // wait for a thread to terminate and get its return value
 void entry_point();                                                                             // first function run by every new thread
+
+void thread_join(TCB* tcb, void **retval);                                                      // wait for a thread to terminate and get its return value
+void thread_sleep(uint32_t ms);
 
 
 

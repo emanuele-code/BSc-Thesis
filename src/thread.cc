@@ -22,7 +22,7 @@
 
 
 #include "thread.hpp"
-
+#include "timer.hpp"
 
 
 
@@ -71,4 +71,14 @@ void thread_join(TCB *tcb, void **retval) {
     while( tcb->state == READY || tcb->state == BLOCKED ) thread_yield();         
     if(retval) *retval = tcb->retval;
     tcb->state = TERMINATED;
+}
+
+
+
+
+
+/* Wait ms milliseconds giving the CPU to the other threads */
+void thread_sleep(uint32_t ms) {
+    uint32_t t0 = tick_now();
+    while (tick_now() - t0 < ms) thread_yield();
 }
