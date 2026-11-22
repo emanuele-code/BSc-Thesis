@@ -30,6 +30,9 @@
 #include <stdint.h>
 
 #include "scheduler.hpp"
+#include "event.hpp"
+
+
 
 
 
@@ -37,9 +40,14 @@ constexpr uint8_t  STACK_FILL     = 0xAA;  // stack painter value
 constexpr uint16_t MIN_STACK_SIZE = 64;    // bytes: initial frame (20) + room for calls and interrupts
 
 
-/* READY:      the thread can be selected by the scheduler
-   TERMINATED: its function returned, the scheduler never selects it again */
-enum ThreadState : uint8_t { READY, TERMINATED };
+
+
+
+/* READY:      the thread is in the READY list (it is running or waiting for its turn)
+   BLOCKED:    the thread waits for an event, it is not in the READY list
+   ZOMBIE:     the thread finished and nobody has read its retval yet (thread_join)
+   TERMINATED: the thread finished and its retval was read: it is not used anymore */
+enum ThreadState : uint8_t { READY, BLOCKED, ZOMBIE, TERMINATED };
 
 
 
@@ -49,13 +57,13 @@ enum ThreadState : uint8_t { READY, TERMINATED };
    IMPORTANT: sp MUST stay the first field. context_switch (assembly) reads and writes
    it through the TCB address itself */
 struct TCB {
-    uint8_t *sp;                 // saved stack pointer (written at every context switch)
-    TCB     *next;               // next thread in the circular list (set by thread_schedule)
-    void    *args;               // argument passed to fn
-    void    *retval;             // value returned by fn (valid when state is TERMINATED)
-    void    *(*fn)(void*);       // function run by the thread
+   uint8_t *sp;                 // saved stack pointer (written at every context switch)
+   TCB     *next;               // next thread in the READY list (circular) or in the finished list
+   void    *args;               // argument passed to fn
+   void    *retval;             // value returned by fn (valid once the thread is ZOMBIE or TERMINATED)
+   void    *(*fn)(void*);       // function run by the thread
 
-    volatile ThreadState state;  // volatile: thread_join re-reads it while another thread changes it
+   volatile ThreadState state;  // volatile: thread_join re-reads it while another thread changes it
 };
 
 
@@ -75,8 +83,8 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 
 
 void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());                      // prepare the stack of a new thread
-void entry_point();                                                                             // first function run by every new thread
 void thread_join(TCB* tcb, void **retval);                                                      // wait for a thread to terminate and get its return value
+void entry_point();                                                                             // first function run by every new thread
 
 
 
@@ -87,22 +95,22 @@ void thread_join(TCB* tcb, void **retval);                                      
    by thread_create, and it is started later by the scheduler. */
 template <uint16_t N>
 struct Thread {
-    static_assert(N >= MIN_STACK_SIZE, "Error: stack minimum size is 64 bytes");
+   static_assert(N >= MIN_STACK_SIZE, "Error: stack minimum size is 64 bytes");
 
-    TCB     tcb;
-    uint8_t stack[N];
+   TCB     tcb;
+   uint8_t stack[N];
 
-    Thread() = default;
+   Thread() = default;
 
-    /* stack painting: returns the maximum number of stack bytes used so far,
-       to estimate how many bytes a thread really needs.
-       Call it after thread_create (init_stack paints the stack).
-       A created thread uses at least 20 bytes (the initial frame). */
-    uint16_t stack_used() const {
-        uint16_t free_bytes = 0;
-        while (free_bytes < N && stack[free_bytes] == STACK_FILL) free_bytes++;
-        return N - free_bytes;
-    }
+   /* stack painting: returns the maximum number of stack bytes used so far,
+      to estimate how many bytes a thread really needs.
+      Call it after thread_create (init_stack paints the stack).
+      A created thread uses at least 20 bytes (the initial frame). */
+   uint16_t stack_used() const {
+      uint16_t free_bytes = 0;
+      while (free_bytes < N && stack[free_bytes] == STACK_FILL) free_bytes++;
+      return N - free_bytes;
+   }
 };
 
 
@@ -115,14 +123,14 @@ struct Thread {
    Returns the TCB, to be used with thread_join. Call it once per Thread. */
 template <uint16_t N>
 TCB *thread_create(Thread<N> *thread, void *(*fn)(void*), void *args) {
-    TCB *tcb    = &thread->tcb;
-    tcb->args   = args;
-    tcb->fn     = fn;
-    tcb->retval = nullptr;
-    tcb->state  = READY;
+   TCB *tcb    = &thread->tcb;
+   tcb->args   = args;
+   tcb->fn     = fn;
+   tcb->retval = nullptr;
+   tcb->state  = READY;
 
-    init_stack(tcb, thread->stack, N, entry_point);    
-    thread_schedule(tcb);                              
+   init_stack(tcb, thread->stack, N, entry_point);    
+   thread_schedule(tcb);                              
 
-    return tcb;
+   return tcb;
 }
