@@ -9,11 +9,7 @@
  *   - ISR(TIMER0_COMPA_vect): increments a 32-bit millisecond counter 'tick'.
  *   - tick_now(): returns the counter as an atomic read, with interrupts
  *     briefly disabled so the ISR can't change it mid-copy.
- *
- * NOTES
- *   - tick_init() does not enable interrupts globally; call sei() in main afterwards.
  */
-
 
 
 
@@ -23,9 +19,14 @@
 #include "timer.hpp"
 
 
+
+
+
 /* Milliseconds since tick_init(). volatile: modified in the ISR.
  * thus, it must always be re-read from memory. */
 static volatile uint32_t tick = 0;
+
+
 
 
 
@@ -33,6 +34,8 @@ static volatile uint32_t tick = 0;
 ISR(TIMER0_COMPA_vect) {
     tick++;
 }
+
+
 
 
 
@@ -44,6 +47,8 @@ void tick_init() {
     TCCR0A |= (1 << WGM01);                               // WGM01: CTC mode (reset the counter on compare match)
     TCCR0B |= (1 << CS01) | (1 << CS00);                  // CS01 | CS00: enable prescaler 64
 }
+
+
 
 
 
