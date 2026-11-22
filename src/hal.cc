@@ -1,6 +1,5 @@
 #include <avr/interrupt.h>
 
-#include "hal.hpp"
 #include "timer.hpp"
 #include "utilitySerial.hpp"
 
