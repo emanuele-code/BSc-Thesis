@@ -30,12 +30,12 @@
 /* First function executed by a new thread.
    It is started by a ret (see init_stack), which cannot pass arguments,
    so it takes none: it reads fn and args from running_thread and calls fn.
-   When fn returns it saves the result and marks the thread as TERMINATED, so
-   the scheduler never selects it again: the final loop is only a safety net,
-   because entry_point has no caller to return to. */
+   When fn returns it saves the result and marks the thread as ZOMBIE: the thread_yield
+   that follows removes it from the READY list, so it never runs again. The final loop
+   is only a safety net, because entry_point has no caller to return to. */
 void entry_point() {
     running_thread->retval = running_thread->fn(running_thread->args);
-    running_thread->state  = TERMINATED;
+    running_thread->state  = ZOMBIE;
 
     for(;;) thread_yield();
 }
@@ -68,6 +68,7 @@ void init_stack(TCB *tcb, uint8_t *stack, size_t size, void (*entry)(void)) {
    While waiting it gives the CPU to the other threads, so it does not block them.
    It must not be called on the running thread itself (it would wait forever). */
 void thread_join(TCB *tcb, void **retval) {
-    while(tcb->state != TERMINATED) thread_yield();         
-    *retval = tcb->retval;
+    while( tcb->state == READY || tcb->state == BLOCKED ) thread_yield();         
+    if(retval) *retval = tcb->retval;
+    tcb->state = TERMINATED;
 }
