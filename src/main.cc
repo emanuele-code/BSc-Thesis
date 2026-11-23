@@ -15,13 +15,13 @@ static volatile uint8_t disponibili = 0;
 template <typename R1, typename R2, typename R3>
 struct Slots {
     static void high(uint8_t i) {
-        if(i == 0)      R1::high();  // accendi led Risorsa 1 
+        if(i == 0)      R1::high();  // turn on led resource 1 
         else if(i == 1) R2::high(); 
         else            R3::high();
     }
 
     static void low(uint8_t i) {
-        if(i == 0)      R1::low();  // spegni led Risorsa 1 
+        if(i == 0)      R1::low();  // turn off led resource 1 
         else if(i == 1) R2::low();  
         else            R3::low();
     }
@@ -37,15 +37,15 @@ void* produci(void*) {
         while(disponibili >= 3)           
             thread_wait(&puo_produrre);
 
-        PIN_PROD::high();               // accende led blu produttore             
-        S::high(idx_prod);              // accende i-esimo led verde risorsa         
+        PIN_PROD::high();               // turn on blue led producer             
+        S::high(idx_prod);              // turn on i-green led resource         
         thread_sleep(700);                     
-        PIN_PROD::low();                // spegne led blu  
+        PIN_PROD::low();                // turn off blu led  
 
-        idx_prod = (idx_prod + 1) % 3;  // cambia risorsa
+        idx_prod = (idx_prod + 1) % 3;  // change resource 
         disponibili++;                      
-        thread_signal(&puo_consumare);  // segnala disponibilità 
-        thread_yield();                 // cede cpu
+        thread_signal(&puo_consumare);  // signal availability
+        thread_yield();                 // yield cpu
     }
     return nullptr;
 }
@@ -62,20 +62,20 @@ void* consuma(void*) {
         while(disponibili == 0) 
             thread_wait(&puo_consumare);
 
-        uint8_t n = (disponibili == 3) ? 3 : 1;   // se 3 ris. disp. consuma tutto
+        uint8_t n = (disponibili == 3) ? 3 : 1;   // if 3 resources are available, consume them all
 
-        PIN_CONS::high();                         // accende led rosso consumatore
-        for(uint8_t i = 0; i < n; i++) {          // itera quante risorse consumare
+        PIN_CONS::high();                         // turn on red led consumer
+        for(uint8_t i = 0; i < n; i++) {          // iterate how many resources to be consumed
             S::low(idx_cons);                     
             idx_cons = (idx_cons + 1) % 3;        
             thread_sleep(100);
         }
         thread_sleep(700);
-        PIN_CONS::low();                          // spegni led rosso
+        PIN_CONS::low();                          // turn off red led
 
-        disponibili -= n;                         // decrementa risorse
-        thread_signal(&puo_produrre);             // segnala consumo
-        thread_yield();                           // cede cpu
+        disponibili -= n;                         // decrease resource
+        thread_signal(&puo_produrre);             // signal consumption
+        thread_yield();                           // yield cpu
     }
     return nullptr;
 }
@@ -84,12 +84,12 @@ void* consuma(void*) {
 
 
 
-static Thread<64> produttore, consumatore;   // riserva memoria
+static Thread<64> produttore, consumatore;   // reserve memory
 
 int main() {
-    hal_init();        // hardware abstraction layer, per attivare pin, tick e timer
+    hal_init();        // hardware abstraction layer, to turn on pin, tick and timer
 
-    DP13::output();    // accendi pin a 5V
+    DP13::output();    // activate 5V on pins
     DP12::output();
     DP11::output();
     DP10::output();
@@ -97,10 +97,10 @@ int main() {
 
     using Slot = Slots<DP12, DP11, DP10>; 
 
-    thread_create(&produttore,  produci<DP13, Slot>, nullptr);  // valorizza thread
+    thread_create(&produttore,  produci<DP13, Slot>, nullptr);  // evaluate thread tcb and stacks
     thread_create(&consumatore, consuma<DP9,  Slot>, nullptr);
 
 
-    thread_start();    // avvia lo scheduler con una prima thread_yield
+    thread_start();    // start the scheduler with a first thread_yield and make the main the idle thread
     return 0;
 }
