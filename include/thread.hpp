@@ -15,12 +15,11 @@
  * thread_create; its stack is prepared at creation time by init_stack.
  *
  * LIMITS
- * - Cooperative only: there is no preemption, a thread keeps the CPU until it yields
- * - The stack size is fixed at compile time (minimum MIN_STACK_SIZE bytes)
- * - Thread objects must be static or global
+ * - Cooperative only: there is no preemption, a thread keeps the CPU until it yields,
+ *   sleeps (thread_sleep) or blocks (thread_wait)
+ * - thread_join and thread_sleep wait by polling: they give the CPU to the others at every
+ *   check, but the waiting thread stays READY
  */
-
-
 
 
 
@@ -30,7 +29,7 @@
 #include <stdint.h>
 
 #include "scheduler.hpp"
-#include "event.hpp"
+#include "conditionVariable.hpp"
 
 
 
@@ -58,7 +57,7 @@ enum ThreadState : uint8_t { READY, BLOCKED, ZOMBIE, TERMINATED };
    it through the TCB address itself */
 struct TCB {
    uint8_t *sp;                 // saved stack pointer (written at every context switch)
-   TCB     *next;               // next thread in the READY list (circular) or in the finished list
+   TCB     *next;               // used to link TCB to the ready_list, finished, or wait_list
    void    *args;               // argument passed to fn
    void    *retval;             // value returned by fn (valid once the thread is ZOMBIE or TERMINATED)
    void    *(*fn)(void*);       // function run by the thread
@@ -84,9 +83,8 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 
 void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());                      // prepare the stack of a new thread
 void entry_point();                                                                             // first function run by every new thread
-
 void thread_join(TCB* tcb, void **retval);                                                      // wait for a thread to terminate and get its return value
-void thread_sleep(uint32_t ms);
+void thread_sleep(uint32_t ms);                                                                 // wait at least ms milliseconds, giving the CPU to the others
 
 
 

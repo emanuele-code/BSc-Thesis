@@ -4,25 +4,27 @@
  * Implementation of the stackful thread library declared in thread.hpp.
  *
  * WHAT IT DOES
- * Implements the three functions of the thread library that do not need assembly:
+ * Implements the functions of the thread library that do not need assembly:
  * entry_point (first function run by a new thread, it calls the thread function
  * and never returns), init_stack (paints the stack with STACK_FILL and writes the
- * initial frame, as if the thread had already been suspended) and thread_join
- * (waits for a thread to finish and takes its return value).
+ * initial frame, as if the thread had already been suspended), thread_join
+ * (waits for a thread to finish and takes its return value) and thread_sleep
+ * (waits for a number of milliseconds).
  * TCB of main, running_thread, thread_schedule and thread_yield are defined in
  * scheduler.cc
  *
  * LIMITS
  * - Works together with context_switch.S, which must be linked in and relies on
  *   the sp field being the first field of the TCB
- * - thread_join waits by polling: it gives the CPU to the others at every check,
- *   but it does not stop running until the thread has terminated
+ * - thread_join and thread_sleep wait by polling: they give the CPU to the others at
+ *   every check, so they do not block them, but the waiting thread stays READY
  */
 
 
 
 #include "thread.hpp"
 #include "timer.hpp"
+
 
 
 
@@ -65,8 +67,9 @@ void init_stack(TCB *tcb, uint8_t *stack, size_t size, void (*entry)(void)) {
 
 
 /* Wait for the thread "tcb" to terminate and copy its return value in *retval.
-   While waiting it gives the CPU to the other threads, so it does not block them.
-   It must not be called on the running thread itself (it would wait forever). */
+   It waits while the thread is READY or BLOCKED, giving the CPU to the other threads
+   at every check, so it does not block them. If the thread is BLOCKED forever the join
+   never returns. Calling it again on a TERMINATED thread returns at once with the same value.  */
 void thread_join(TCB *tcb, void **retval) {
     while( tcb->state == READY || tcb->state == BLOCKED ) thread_yield();         
     if(retval) *retval = tcb->retval;
@@ -79,6 +82,6 @@ void thread_join(TCB *tcb, void **retval) {
 
 /* Wait ms milliseconds giving the CPU to the other threads */
 void thread_sleep(uint32_t ms) {
-    uint32_t t0 = tick_now();
-    while (tick_now() - t0 < ms) thread_yield();
+    uint32_t now = tick_now();
+    while (tick_now() - now < ms) thread_yield();
 }

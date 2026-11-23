@@ -24,13 +24,20 @@
 
 
 
+
+
 /* serial speed in bits per second: the serial monitor on the PC must use the same value */
 constexpr uint32_t UART_BAUD = 9600;
+
+
+
+
 
 /* value for the baud rate register UBRR0, computed at compile time with the formula
    of the datasheet: the UART divides the CPU clock by 16 * (UBRR + 1) to get the baud
    rate. It is 103 at 16 MHz and 9600 baud */
 constexpr uint16_t UART_UBRR = F_CPU / (16*UART_BAUD) - 1;
+
 
 
 
@@ -43,6 +50,7 @@ inline void uart_init() {
     UCSR0B = (1 << TXEN0);                     // activate the transmission on TX pin
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);    // use 8N1 format, standard serial format
 }
+
 
 
 
@@ -78,4 +86,3 @@ inline void uart_print_u16(uint16_t n) {
     uart_put('\n');
     uart_put('\r');
 }
-
