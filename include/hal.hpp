@@ -4,7 +4,7 @@
  * Hardware layer of the library: one include to get the board support.
  *
  * WHAT IT DOES
- * Includes utilitySerial.hpp (UART0) and utilityPin.hpp (digital pins), so that
+ * Includes utilitySerial.hpp (UART0), utilityPin.hpp (digital pins) and timer.hpp (start timer), so that
  * the user only needs "hal.hpp". It declares hal_init(), which starts the hardware
  * that the library needs.
  *
@@ -19,6 +19,7 @@
 
 #include "utilitySerial.hpp"
 #include "utilityPin.hpp"
+#include "timer.hpp"
 
 
 
