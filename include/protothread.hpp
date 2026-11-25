@@ -1,4 +1,4 @@
-/* protothread.h
+/* protothread.hpp
  *
  * DESCRIPTION
  * Minimal protothread implementation: stackless, cooperative
