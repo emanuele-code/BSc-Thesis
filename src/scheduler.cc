@@ -10,9 +10,9 @@
  * main (tcb_main) and every new thread is appended at the end by thread_schedule,
  * which is called by thread_create. thread_yield gives the CPU to the next thread
  * of the list, so the threads run one after the other in a circle. A thread that
- * finishes is removed from the list in O(1) and moved to the "finished" list, so
- * it is never visited again. There is no scheduler object to create: it starts
- * working at the first thread_yield() of main.
+ * finishes (ZOMBIE, or TERMINATED if it is detached) is unlinked from the list in O(1)
+ * by its last thread_yield, so it is never visited again. There is no scheduler object
+ * to create: it starts working at the first thread_yield() of main.
  * A thread that waits for an event is BLOCKED: thread_block removes it from the READY
  * list and links it, through the same "next" field, in the wait list of the event (a
  * thread is in one list at a time). thread_wake_all / thread_wake_one move it back to
@@ -39,7 +39,7 @@
 
 /* TCB of main: it is the first element of the list, and its "next" points to itself,
    so at the beginning the list is made only of main. Its sp is written at the first
-   context switch. The fields are: sp, next, args, retval, fn, state */
+   context switch. The fields are: sp, next, args, retval, fn, state, detached */
 TCB tcb_main        = {nullptr, &tcb_main, nullptr, nullptr, nullptr, READY, false};
 TCB *running_thread = &tcb_main;    
 
@@ -72,8 +72,8 @@ void thread_schedule(TCB *tcb) {
 
 /* Voluntarily give the CPU to the next thread of the READY list (round robin).
    If the running thread is still READY it stays in the list and becomes the new
-   running_prev. Otherwise (it finished) it is unlinked in O(1) using running_prev
-   and moved to the "finished" list.
+   running_prev. Otherwise (it finished: ZOMBIE, or TERMINATED if detached) it is
+   unlinked in O(1) using running_prev and never visited again.
    If main is the only thread in the list there is nothing to switch, so it just returns. */
 void thread_yield() {
     TCB *self = running_thread;

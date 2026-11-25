@@ -1,18 +1,21 @@
 /* utilityPin.hpp
  *
  * DESCRIPTION
- * Zero-cost abstraction for Arduino UNO digital pins 8..13 (port B).
+ * Zero-cost abstraction for Arduino UNO digital pins 2..13 (port D: 2..7, port B: 8..13).
  *
  * WHAT IT DOES
  * Simplifies pin handling on the board by hiding the direct manipulation of
- * the DDRB/PORTB registers behind a typed interface, e.g. DP13::toggle().
+ * the DDRx/PORTx/PINx registers behind a typed interface, e.g. DP13::toggle().
  * The pin number is a template parameter, so everything is resolved at
  * compile time and generates the same code as writing the registers by hand.
  *
  * LIMITS
- * Only pins 8..13 (PB0..PB5) are supported.
+ * - Only pins 2..13 are supported: pins 0 and 1 are the UART (used by utilitySerial.hpp)
+ *   and the analog pins A0..A5 are not supported
+ * - read() returns true when the pin is high: a button wired to GND with the internal
+ *   pull-up (input() then high()) reads false while it is pressed
  */
- 
+
 
 
 #pragma once
@@ -38,26 +41,33 @@ struct UtilityPin {
 
     /* static member functions: to avoid obj instance and save on RAM.
      * if constexpr keeps only the branch of the right port: no runtime cost. */
+
+    /* DDRx bit = 1: the pin drives the line */
     static void output() {
         if constexpr (N < 8) DDRD |=  (1 << BIT);
         else                 DDRB |=  (1 << BIT);
     }
+    /* DDRx bit = 0: the pin only reads the line */
     static void input() {
         if constexpr (N < 8) DDRD &= ~(1 << BIT);
         else                 DDRB &= ~(1 << BIT);
     }
+    /* output: drives the pin high. input: enables the internal pull-up */
     static void high() {
         if constexpr (N < 8) PORTD |=  (1 << BIT);
         else                 PORTB |=  (1 << BIT);
     }
+    /* output: drives the pin low. input: disables the internal pull-up */
     static void low() {
         if constexpr (N < 8) PORTD &= ~(1 << BIT);
         else                 PORTB &= ~(1 << BIT);
     }
+    /* output: inverts the pin level */
     static void toggle() {
         if constexpr (N < 8) PORTD ^= (1 << BIT);
         else                 PORTB ^= (1 << BIT);
     }
+    /* reads the level of the pin from the PINx register: true = high */
     static bool read() {
         if constexpr (N < 8) return PIND & (1 << BIT);
         else                 return PINB & (1 << BIT);

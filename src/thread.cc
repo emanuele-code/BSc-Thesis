@@ -8,8 +8,9 @@
  * entry_point (first function run by a new thread, it calls the thread function
  * and never returns), init_stack (paints the stack with STACK_FILL and writes the
  * initial frame, as if the thread had already been suspended), thread_join
- * (waits for a thread to finish and takes its return value) and thread_sleep
- * (waits for a number of milliseconds).
+ * (waits for a thread to finish and takes its return value), thread_detach (nobody will
+ * join the thread: its slot is freed by itself) and thread_sleep (waits for a number of
+ * milliseconds).
  * TCB of main, running_thread, thread_schedule and thread_yield are defined in
  * scheduler.cc
  *
@@ -32,8 +33,9 @@
 /* First function executed by a new thread.
    It is started by a ret (see init_stack), which cannot pass arguments,
    so it takes none: it reads fn and args from running_thread and calls fn.
-   When fn returns it saves the result and marks the thread as ZOMBIE: the thread_yield
-   that follows removes it from the READY list, so it never runs again. The final loop
+   When fn returns it saves the result and marks the thread as ZOMBIE (TERMINATED if it
+   is detached): the thread_yield that follows removes it from the READY list, so it
+   never runs again. The final loop
    is only a safety net, because entry_point has no caller to return to. */
 void entry_point() {
     running_thread->retval = running_thread->fn(running_thread->args);
@@ -69,7 +71,8 @@ void init_stack(TCB *tcb, uint8_t *stack, size_t size, void (*entry)(void)) {
 /* Wait for the thread "tcb" to terminate and copy its return value in *retval.
    It waits while the thread is READY or BLOCKED, giving the CPU to the other threads
    at every check, so it does not block them. If the thread is BLOCKED forever the join
-   never returns. Calling it again on a TERMINATED thread returns at once with the same value.  */
+   never returns. Calling it again on a TERMINATED thread returns at once with the same value,
+   as long as the Thread has not been created again with thread_create. */
 void thread_join(TCB *tcb, void **retval) {
     if( tcb == nullptr ) return;
 
@@ -82,7 +85,9 @@ void thread_join(TCB *tcb, void **retval) {
 
 
 
-/* Wait ms milliseconds giving the CPU to the other threads */
+/* Wait about ms milliseconds giving the CPU to the other threads.
+   The first tick can come right after the call, so the wait can be up to 1 ms shorter.
+   With ms = 0 it returns at once without yielding */
 void thread_sleep(uint32_t ms) {
     uint32_t now = tick_now();
     while (tick_now() - now < ms) thread_yield();
@@ -92,6 +97,10 @@ void thread_sleep(uint32_t ms) {
 
 
 
+/* Tell that nobody will join the thread. If it has already finished (ZOMBIE) its slot is
+   freed at once (TERMINATED). If it is still running it is marked as detached and
+   entry_point frees the slot when fn returns. Nothing happens with nullptr or when the
+   thread is already TERMINATED */
 void thread_detach(TCB* tcb) {
     if( tcb == nullptr )return;
 

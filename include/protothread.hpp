@@ -7,12 +7,14 @@
  * WHAT IT DOES
  * Lets a function suspend itself and later resume from the same point, so
  * that sequences with waits can be written in a linear, thread-like style.
- * The only state kept between calls is a 2-byte local continuation that state 
+ * The only state kept between calls is a 2-byte local continuation that tells
  * where to resume the function. 
  * 
  * LIMITS
  * - Using protothread might invalidate the use of a switch-case 
- *   statment as they rely on them
+ *   statement as they rely on them
+ * - Two PT_* macros on the same source line give a compile error: they use __LINE__
+ *   as the case label
  * - Local variables are not preserved across a wait or yields, 
  *   so the programmer must keep them in a context struct
  * 
@@ -95,7 +97,7 @@ struct Protothread { uint16_t lc; };
 
 
 
-/* Close the switch statment, restore the local continuation to 0 and return PT_ENDED */
+/* Close the switch statement, restore the local continuation to 0 and return PT_ENDED */
 #define PT_END(pt) } PT_INIT(pt); return PT_ENDED
 
 

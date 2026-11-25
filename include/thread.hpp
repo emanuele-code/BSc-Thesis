@@ -19,6 +19,9 @@
  *   sleeps (thread_sleep) or blocks (thread_wait)
  * - thread_join and thread_sleep wait by polling: they give the CPU to the others at every
  *   check, but the waiting thread stays READY
+ * - A Thread<N> must be static or global: TERMINATED (0) means "free" and only static
+ *   memory starts zeroed
+ * - thread_sleep has the resolution of the 1 ms tick (see thread_sleep)
  */
 
 
@@ -87,7 +90,7 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());       // prepare the stack of a new thread
 void entry_point();                                                              // first function run by every new thread
 void thread_join(TCB* tcb, void **retval);                                       // wait for a thread to terminate and get its return value
-void thread_sleep(uint32_t ms);                                                  // wait at least ms milliseconds, giving the CPU to the others
+void thread_sleep(uint32_t ms);                                                  // wait about ms milliseconds (-1 ms at most), giving the CPU to the others
 void thread_detach(TCB* tcb);                                                    // nobody will join the thread: it frees its slot by itself when it finishes
 
 
