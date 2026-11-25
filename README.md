@@ -171,8 +171,6 @@ Rules:
 | `DP2` ... `DP13` (`utilityPin.hpp`) | Digital pins 2..13 (port D: 2..7, port B: 8..13), resolved at compile time: `output()`, `input()`, `high()`, `low()`, `toggle()`, `read()` (true if the pin is high). Pins 0 and 1 are the UART and are not available; the analog pins A0..A5 are not supported |
 | `uart_put(char)`, `uart_print_u16(uint16_t)` (`utilitySerial.hpp`) | Blocking transmit on UART0, for debugging |
 
-A button wired between a pin and GND needs no resistor: call `input()` and then `high()` to enable the internal pull-up; `read()` returns false while the button is pressed.
-
 ### Example
 
 A producer and a consumer share a buffer of 3 items. The producer is faster, so the buffer fills up and the producer has to wait.
