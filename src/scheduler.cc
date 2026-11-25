@@ -40,7 +40,7 @@
 /* TCB of main: it is the first element of the list, and its "next" points to itself,
    so at the beginning the list is made only of main. Its sp is written at the first
    context switch. The fields are: sp, next, args, retval, fn, state */
-TCB tcb_main        = {nullptr, &tcb_main, nullptr, nullptr, nullptr, READY};
+TCB tcb_main        = {nullptr, &tcb_main, nullptr, nullptr, nullptr, READY, false};
 TCB *running_thread = &tcb_main;    
 
 
@@ -49,12 +49,9 @@ TCB *running_thread = &tcb_main;
 
 /* running_prev: predecessor of the running thread in the READY list, it lets
                  thread_yield and thread_block unlink the running thread in O(1)
-   tail:         last thread of the READY list (the one that points to main)
-   finished:     threads that terminated, linked through "next" and ended by
-                 nullptr: the scheduler never visits them again */
+   tail:         last thread of the READY list (the one that points to main) */
 static TCB *running_prev = &tcb_main;
-static TCB *tail         = &tcb_main; 
-static TCB *finished     = nullptr;                                                    
+static TCB *tail         = &tcb_main;                                              
 
 
 
@@ -85,10 +82,9 @@ void thread_yield() {
     if( self->state == READY ) {
         running_prev = self;
     } else {
-        running_prev->next = self->next;
+        running_prev->next    = self->next;
         if(tail == self) tail = running_prev;
-        self->next = finished;
-        finished   = self;
+        self->next            = nullptr;
     }
 
     if(next == self) return;
@@ -131,7 +127,7 @@ void thread_block(TCB **wait_list) {
     if( tail == self ) tail = running_prev;
 
     self->next = *wait_list;
-    *wait_list   = self;
+    *wait_list = self;
 
     running_thread = next;
     context_switch(self, next);
