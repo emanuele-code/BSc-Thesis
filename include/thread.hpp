@@ -42,11 +42,13 @@ constexpr uint16_t MIN_STACK_SIZE = 64;    // bytes: initial frame (20) + room f
 
 
 
-/* READY:      the thread is in the READY list (it is running or waiting for its turn)
+/* TERMINATED: the thread is not in use: it was never created, or it finished and its retval
+               was read (thread_join), or it finished and it was detached (thread_detach).
+               The Thread can be created again with thread_create
+   READY:      the thread is in the READY list (it is running or waiting for its turn)
    BLOCKED:    the thread waits for an event, it is not in the READY list
-   ZOMBIE:     the thread finished and nobody has read its retval yet (thread_join)
-   TERMINATED: the thread finished and its retval was read: it is not used anymore */
-enum ThreadState : uint8_t { READY, BLOCKED, ZOMBIE, TERMINATED };
+   ZOMBIE:     the thread finished and nobody has read its retval yet (thread_join) */
+enum ThreadState : uint8_t { TERMINATED, READY, BLOCKED, ZOMBIE };
 
 
 
@@ -56,13 +58,14 @@ enum ThreadState : uint8_t { READY, BLOCKED, ZOMBIE, TERMINATED };
    IMPORTANT: sp MUST stay the first field. context_switch (assembly) reads and writes
    it through the TCB address itself */
 struct TCB {
-   uint8_t *sp;                 // saved stack pointer (written at every context switch)
-   TCB     *next;               // used to link TCB to the ready_list, finished, or wait_list
-   void    *args;               // argument passed to fn
-   void    *retval;             // value returned by fn (valid once the thread is ZOMBIE or TERMINATED)
-   void    *(*fn)(void*);       // function run by the thread
-
-   volatile ThreadState state;  // volatile: thread_join re-reads it while another thread changes it
+   uint8_t *sp;             // saved stack pointer (written at every context switch)
+   TCB     *next;           // links the TCB in the READY list or in a wait list 
+   void    *args;           // argument passed to fn
+   void    *retval;         // value returned by fn (valid once the thread is ZOMBIE or TERMINATED)
+   void    *(*fn)(void*);   // function run by the thread
+   
+   volatile ThreadState state;     // volatile: thread_join re-reads it while another thread changes it
+   bool                 detached;  // set by thread_detach: when fn returns the thread goes straight to TERMINATED
 };
 
 
@@ -81,11 +84,11 @@ extern TCB  tcb_main;            // TCB of main (the thread running at startup)
 
 
 
-void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());                      // prepare the stack of a new thread
-void entry_point();                                                                             // first function run by every new thread
-void thread_join(TCB* tcb, void **retval);                                                      // wait for a thread to terminate and get its return value
-void thread_sleep(uint32_t ms);                                                                 // wait at least ms milliseconds, giving the CPU to the others
-
+void init_stack(TCB *tcb,  uint8_t *stack, size_t size,  void (*entry)());       // prepare the stack of a new thread
+void entry_point();                                                              // first function run by every new thread
+void thread_join(TCB* tcb, void **retval);                                       // wait for a thread to terminate and get its return value
+void thread_sleep(uint32_t ms);                                                  // wait at least ms milliseconds, giving the CPU to the others
+void thread_detach(TCB* tcb);                                                    // nobody will join the thread: it frees its slot by itself when it finishes
 
 
 
@@ -120,14 +123,21 @@ struct Thread {
 /* Initialize the TCB and the stack of "thread", then register it in the scheduler.
    It does not start the thread: it runs when the scheduler selects it.
    It is a template because the stack size N is part of the Thread<N> type.
-   Returns the TCB, to be used with thread_join. Call it once per Thread. */
+   The Thread can be created again when it is TERMINATED: it was never created, or it was
+   joined (thread_join), or it was detached and finished (thread_detach). In any other state
+   it is still in use, so nothing is modified and nullptr is returned.
+   Returns the TCB, to be used with thread_join or thread_detach, or nullptr if the Thread
+   is in use. */
 template <uint16_t N>
 TCB *thread_create(Thread<N> *thread, void *(*fn)(void*), void *args) {
-   TCB *tcb    = &thread->tcb;
-   tcb->args   = args;
-   tcb->fn     = fn;
-   tcb->retval = nullptr;
-   tcb->state  = READY;
+   if(thread->tcb.state != TERMINATED) return nullptr;
+
+   TCB *tcb      = &thread->tcb;
+   tcb->fn       = fn;
+   tcb->args     = args;
+   tcb->state    = READY;
+   tcb->retval   = nullptr;
+   tcb->detached = false;
 
    init_stack(tcb, thread->stack, N, entry_point);    
    thread_schedule(tcb);                              

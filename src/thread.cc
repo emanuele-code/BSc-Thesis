@@ -37,7 +37,7 @@
    is only a safety net, because entry_point has no caller to return to. */
 void entry_point() {
     running_thread->retval = running_thread->fn(running_thread->args);
-    running_thread->state  = ZOMBIE;
+    running_thread->state  = running_thread->detached == true ? TERMINATED : ZOMBIE;
 
     for(;;) thread_yield();
 }
@@ -71,6 +71,8 @@ void init_stack(TCB *tcb, uint8_t *stack, size_t size, void (*entry)(void)) {
    at every check, so it does not block them. If the thread is BLOCKED forever the join
    never returns. Calling it again on a TERMINATED thread returns at once with the same value.  */
 void thread_join(TCB *tcb, void **retval) {
+    if( tcb == nullptr ) return;
+
     while( tcb->state == READY || tcb->state == BLOCKED ) thread_yield();         
     if(retval) *retval = tcb->retval;
     tcb->state = TERMINATED;
@@ -84,4 +86,15 @@ void thread_join(TCB *tcb, void **retval) {
 void thread_sleep(uint32_t ms) {
     uint32_t now = tick_now();
     while (tick_now() - now < ms) thread_yield();
+}
+
+
+
+
+
+void thread_detach(TCB* tcb) {
+    if( tcb == nullptr )return;
+
+    if( tcb->state == ZOMBIE )          tcb->state    = TERMINATED;
+    else if( tcb->state != TERMINATED ) tcb->detached = true;
 }
